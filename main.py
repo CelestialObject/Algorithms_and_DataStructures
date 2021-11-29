@@ -1,17 +1,12 @@
 # Copyright 2021, Aman Gupta
-from DataStructures.BinaryHeaps.binary_heap import BinaryHeap
+from Algorithms.Strings.lcs import lcs
+from Algorithms.Strings.lis import lis
 
 def main():
-  # A = [15, 13, 9, 5, 12, 8, 7, 4, 0, 6, 2, 1]
-  # bh = BinaryHeap(A, max_heap=False)
-  # print(bh, bh.length, bh.heap_size)
-  # print(bh.extract_heap_min())
-  # print(bh, bh.length, bh.heap_size)
-
-  A = [15, 13, 9, 5, 12, 8, 7, 4, 0, 6, 2, 1]
-  bh = BinaryHeap(A, max_heap=False)
-  print(bh, bh.length, bh.heap_size)
-  bh.decrease_key(5, 0)
-  print(bh, bh.length, bh.heap_size)
+  s = "carbohydrates"
+  a = 'michaelangelo'
+  b = 'hieroglyphology'
+  print(lcs(a, b))
+  print(len(s), lis(s))
 if __name__=='__main__':
   main()
