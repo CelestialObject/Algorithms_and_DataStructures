@@ -1,12 +1,9 @@
 # Copyright 2021, Aman Gupta
-from Algorithms.Strings.lcs import lcs
-from Algorithms.Strings.lis import lis
+from Algorithms.Strings.lps import lps
 
 def main():
-  s = "carbohydrates"
-  a = 'michaelangelo'
-  b = 'hieroglyphology'
-  print(lcs(a, b))
-  print(len(s), lis(s))
+  s = 'abrac'
+  print(lps(s))
+
 if __name__=='__main__':
   main()
