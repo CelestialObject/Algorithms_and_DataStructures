@@ -1,9 +1,9 @@
 # Copyright 2021, Aman Gupta
-from Algorithms.Strings.lps import lps
+from DataStructures.BinaryTrees.binary_tree import BinaryTree
 
 def main():
-  s = 'abrac'
-  print(lps(s))
+  bt = BinaryTree(3)
+  print(bt)
 
 if __name__=='__main__':
   main()
