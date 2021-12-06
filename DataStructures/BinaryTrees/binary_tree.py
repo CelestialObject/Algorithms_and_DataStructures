@@ -1,166 +1,77 @@
-import math
 from typing import Any
-from dataclasses import dataclass, field
 
-class BinTreeNode:
-  def __init__(self, item) -> None:
-    self.item = item
-    self.left = None
-    self.right = None 
-    self.parent = None
+class BinaryTreeNode:
+  def __init__(N, x : Any) -> None:
+    N.item = x
+    N.left = None
+    N.right = None
+    N.parent = None
+  
+  def traversal_order(N):
+    if (N.left): yield from N.left.traversal_order()
+    yield N
+    if (N.right): yield from N.right.traversal_order()
+  
+  def subtree_first(N): # O(h): return leftmost leaf in subtree(current_node)
+    if (N.left): return N.left.subtree_first()
+    else: return N
+  
+  def subtree_last(N): # O(h): return rightmost leaf in subtree(current_node)
+    if (N.right): return N.right.subtree_last()
+    else: return N
 
-    def get_item(self):
-      return self.item
-    
-    def set_item(self, item):
-      self.item = item
-      return None
+  def successor(N):
+    if (N.right): return N.right.subtree_first()
+    while ((N.parent) and (N is N.parent.right)): N = N.parent
+    return N.parent
+  
+  def predecessor(N):
+    if (N.left): return N.left.subtree_last()
+    while ((N.parent) and (N is N.parent.left)): N = N.parent
+    return N.parent
+  
+  def insert_subtree_before(N, M) -> None:
+    if N.left:
+      N = N.left.subtree_last()
+      N.right, M.parent = M, N
+    else:
+      N.left, M.parent = M, N
+  
+  def insert_subtree_after(N, M) -> None:
+    if N.right:
+      N = N.right.subtree_first()
+      N.left, M.parent = M, N
+    else:
+      N.right, M.parent = M, N
+  
+  def subtree_delete(N):
+    if (N.left or N.right):
+      if (N.left): M = N.predecessor()
+      else: M = N.successor()
+      N.item, M.item = M.item, N.item
+      return M.subtree_delete()    
+    if N.parent:
+      if (N is N.parent.left): N.parent.left = None
+      else: N.parent.right = None
+    return N
 
-    def has_left(self):
-      return (self.left is not None)
-
-    def left_child(self):
-      return self.left
-    
-    def has_right(self):
-      return (self.right is not None)
-    
-    def right_child(self):
-      return self.right
-    
-    def set_right_child(self, r) -> None:
-      self.right = r
-      return None
-
-    def set_left_child(self, l) -> None:
-      self.left = l
-      return None
-    
-    def del_right_child(self) -> None:
-      self.right = None
-      return None 
-
-    def del_left_child(self) -> None:
-      self.left = None
-      return None 
-
-    def get_parent(self):
-      return self.parent
-
-    def is_root(self):
-      return (self.parent is None)
-    
-    def is_leaf(self):
-      return (self.left is not None) and (self.right is not None)
-
-@dataclass(slots=True)
 class BinaryTree:
-  root : BinTreeNode = field(default_factory=BinTreeNode)
+  def __init__(T, NodeType=BinaryTreeNode) -> None:
+    T.root = None
+    T.size = 0
+    T.NodeType = NodeType
 
-  def traversal_order(self, x : BinTreeNode):
-    res = []
-    if x.is_leaf(): res.append(x)
-    else:
-      if x.has_left(): res.append(self.traversal_order(x.left_child()))
-      res.append(x)
-      if x.has_right(): res.append(self.traversal_order(x.right_child()))
-    return res
+  def __len__(T): return T.size
 
-  def subtree(self, x : BinTreeNode):
-    pass
-
-  def depth(self, x : BinTreeNode) -> int:
-    pass
-
-  def height(self, x : BinTreeNode) -> int:
-    pass 
-
-  def subtree_first(self, x : BinTreeNode) -> BinTreeNode:
-    """ return first node in the traversal order of subtree(x)
-    """
-    cur_node = x
-    while (cur_node.has_left()): # if x has a left child
-      cur_node = cur_node.left_child()
-      if cur_node.is_leaf(): return cur_node # return if left child is a leaf
-    return cur_node # if subtree(x) has no left subtree, return x
+  def __iter__(T):
+    if (T.root):
+      for N in T.root.subtree_iter():
+        yield N.item
   
-  def subtree_last(self, x : BinTreeNode) -> BinTreeNode:
-    """ return first node in the traversal order of subtree(x)
-    """
-    cur_node = x
-    while (cur_node.has_right()): # if x has a left child
-      cur_node = cur_node.right_child()
-      if cur_node.is_leaf(): return cur_node # return if left child is a leaf
-    return cur_node # if subtree(x) has no left subtree, return x
+  def build(T, A):
+    N = [ai for ai in A]
+    def build_subtree(N, i, j):
+      c = (i+j)//2
+      root = T.NodeType(N[c])
+      if (i < c): root.left, root.left.parent = build_subtree(A, i, c-1), root
 
-  def succesor(self, x : BinTreeNode) -> BinTreeNode:
-    """ return succesor of Node x in traversal order of the binary tree
-    """
-    
-    if x.has_right(): return self.subtree_first(x.right_child())
-    else:
-      cur_node = x
-      if cur_node.is_root(): return cur_node
-      p = cur_node.get_parent()
-      while (p.left_child() != cur_node):
-        cur_node = cur_node.get_parent()
-        p = cur_node.parent()
-      return p
-
-  def predecesor(self, x : BinTreeNode) -> BinTreeNode:
-    """ return predecesor of Node x in traversal order of the binary tree
-    """
-    if x.has_left(): return self.subtree_last(x.left_child())
-    else:
-      cur_node = x
-      if cur_node.is_root(): return cur_node
-      p = cur_node.get_parent()
-      while (p.right_child() != cur_node):
-        cur_node = cur_node.get_parent()
-        p = cur_node.parent()
-      return p
-
-  def insert_before(self, node : BinTreeNode, x : BinTreeNode) -> None:
-    if (not node.has_left()):
-      node.set_left_child(x)
-      return None
-    else:
-      p = self.predecesor(node)
-      p.set_right_child(x)
-
-  def insert_after(self, node : BinTreeNode, x : BinTreeNode) -> None:
-    if (not node.has_right()):
-      node.set_right_child(x)
-      return None
-    else:
-      s = self.succesor(node)
-      s.set_left_child(x)
-      return None
-  
-  def swap_items(self, x : BinTreeNode, y : BinTreeNode) -> None:
-    x_item = x.get_item()
-    y_item = y.get_item()
-    x.set_item(y_item)
-    y.set_item(x_item)
-    return None 
-
-  def delete_node(self, x : BinTreeNode) -> None:
-    if x.is_leaf():
-      p = x.get_parent()
-      p.del_left_child()
-    else:
-      if x.has_left():
-        pr = self.predecesor(x)
-        self.swap_items(x, pr)
-        self.delete_node(pr)
-      if x.has_right():
-        s = self.succesor(x)
-        self.swap_items(x, s)
-        self.delete_node(s)
-
-  def __repr__(self) -> str:
-    traversal_order = self.traversal_order(self.root)
-    res = ""
-    for node in traversal_order:
-      res += f'{node.get_item()}, '
-    return res
